@@ -77,3 +77,8 @@ f-PDF@x3 = 8.25
 f-PDF@x4 = 1419.77
 f-PDF@x5 = 0.127074
 ```
+
+## 参考
+
+- [1] [编译原理-如何使用flex和yacc工具构造一个高级计算器](https://blog.csdn.net/liaopiankun0618/article/details/84232771)
+- [2] [Flex and Bison Tutorial](https://www.cse.scu.edu/~mwang2/compiler/TutorialFlexBison.pdf)
