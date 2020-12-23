@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ -f autodiff ]; then rm ${result_path}autodiff; fi
+if [ -f autodiff ]; then rm autodiff; fi
 bison -d diff.y
 flex diff.l
 gcc lex.yy.c diff.tab.c -lm -o autodiff

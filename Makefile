@@ -1,7 +1,7 @@
 all : autodiff check
 autodiff: lex.yy.o diff.tab.o
 	gcc -o autodiff lex.yy.o diff.tab.o -lm
-check:
+check: check.c
 	gcc -o check check.c -lm
 lex.yy.o: diff.l
 	bison -d diff.y; flex diff.l; gcc -c lex.yy.c -lm
