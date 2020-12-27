@@ -67,7 +67,7 @@ f-PDF@x5 = 0.127074
 ```text
 aa@DESKTOP-AXY:~/cplab2/autodiff$ make
 gcc -o check check.c -lm
-aa@DESKTOP-AXY:~/cplab2/autodiff$ ./check 
+aa@DESKTOP-AXY:~/cplab2/autodiff$ ./check
 样例1：f(x1=2,x2=5):ln(x1)+x1*x2-sin(x2)
 手动计算结果：
 val = 11.6521
@@ -88,6 +88,7 @@ f-PDF@x2 = 56.6625
 f-PDF@x3 = 8.25
 f-PDF@x4 = 1419.77
 f-PDF@x5 = 0.127074
+
 ```
 
 ## 参考

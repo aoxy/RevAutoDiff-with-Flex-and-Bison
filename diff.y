@@ -151,7 +151,6 @@ expr
                             $<s.dval[i]>$ = 0;
                         else if (fabs($<s.dval[i]>1) <= 1e-15)
                             $<s.dval[i]>$ = $<s.val>$ * log($<s.val>1);
-
                         else if (fabs($<s.dval[i]>3) <= 1e-15)
                             $<s.dval[i]>$ = $<s.val>3 * pow($<s.val>1, $<s.val>3 - 1) * $<s.dval[i]>1;
                         else
