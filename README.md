@@ -68,6 +68,18 @@ f-PDF@x5 = 0.127074
 aa@DESKTOP-AXY:~/cplab2/autodiff$ make
 gcc -o check check.c -lm
 aa@DESKTOP-AXY:~/cplab2/autodiff$ ./check 
+样例1：f(x1=2,x2=5):ln(x1)+x1*x2-sin(x2)
+手动计算结果：
+val = 11.6521
+f-PDF@x1 = 5.5
+f-PDF@x2 = 1.71634
+
+样例2：f(x1=2,x2=3):exp(sin(x1))+x2^x2+x1*x2^2
+手动计算结果：
+val = 47.4826
+f-PDF@x1 = 7.96688
+f-PDF@x2 = 68.6625
+
 样例3：f(x1=2,x2=3,x3=4,x4=5,x5=6):exp(sin(x1))+x2^x2+x3^2+4^x4+ln(x3*x4)+(cos(ln(2.5*x5)))^2
 手动计算结果：
 val = 1073.3
