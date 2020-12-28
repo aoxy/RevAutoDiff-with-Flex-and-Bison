@@ -1,6 +1,6 @@
 # 反向自动微分求解
 
-这是中国科学技术大学2020年秋季学期**编译原理和技术**课程郑启龙班的编译原理上机实验2，要求编写一个 YACC 描述文件，实现反向自动微分求解。详细要求见本仓库中的[实验要求](./2020-compiler-lab-2.pdf)。
+这是中国科学技术大学2020年秋季学期**编译原理和技术**课程郑启龙班的编译原理上机实验2，要求编写一个 YACC 描述文件，实现反向自动微分求解。详细要求见本仓库中的[实验要求](./2020-compiler-lab-2.pdf)。本实现支持x0~x9共10个自变量，可以很方便地扩充至更多自变量。
 
 ## 示例：
 
@@ -95,3 +95,4 @@ f-PDF@x5 = 0.127074
 
 - [1] [编译原理-如何使用flex和yacc工具构造一个高级计算器](https://blog.csdn.net/liaopiankun0618/article/details/84232771)
 - [2] [Flex and Bison Tutorial](https://www.cse.scu.edu/~mwang2/compiler/TutorialFlexBison.pdf)
+- [3] [自动微分](http://fancyerii.github.io/books/autodiff/)
