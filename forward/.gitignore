@@ -1,0 +1,14 @@
+# 先忽略所有
+*
+
+# 再排除下面这些
+!.gitignore
+!LICENSE
+!Makefile
+!*.l
+!*.y
+!run.sh
+!input*.txt
+!README.md
+!check.c
+!2020-compiler-lab-2.pdf

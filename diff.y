@@ -1,11 +1,33 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <math.h>
 
 int yylex();
 int yyerror(char *);
+
 double vars[10] = {0.0}; //记录出现了x0到x9的初始值
+double dvars[10] = {0.0}; //记录出现了x0到x9的初始值
+#define True 1
+#define False 0
+typedef struct CGraphNode{
+    double dval;
+    int leaf;
+    double ledge;
+    double redge;
+    struct CGraphNode*left;
+    struct CGraphNode*right;
+    int x;
+}CGraphNode,*CGraph;
+void calculate(CGraph root);
+void grad(CGraphNode *p);
+CGraphNode *newNode(double dval,
+                    int leaf,
+                    double ledge,
+                    double redge,
+                    CGraphNode *left,
+                    CGraphNode *right);
 int i, j;
 double aux;
 int flag[10] = {0}; //记录出现了x0到x9中的哪些变量
@@ -17,7 +39,7 @@ int flag[10] = {0}; //记录出现了x0到x9中的哪些变量
     struct
     {
         double val;
-        double dval[10];
+        void *posi;
     } s;
 }
 %token '(' ')'
@@ -41,23 +63,20 @@ int flag[10] = {0}; //记录出现了x0到x9中的哪些变量
 REV_AutoDiff
     : func_def
         {
-            $<s.val>$ = $<s.val>1;
-            printf("val = %.6g\n",$<s.val>$);
+            printf("val = %.6g\n",$<s.val>1);
+            CGraph root = $<s.posi>1;
+            calculate(root);
             for (i = 0; i < 10; i++)
                 if (flag[i] == 1)
-                {
-                   $<s.dval[i]>$ = $<s.dval[i]>1;
-                    printf("f-PDF@x%d = %.6g\n", i,$<s.dval[i]>$);
-                }
+                    printf("f-PDF@x%d = %.6g\n", i,dvars[i]);
         }
     ;
 func_def
     : 'f' '(' var_list ')' ':' expr
         {
             $<s.val>$ = $<s.val>6;
-            for (i = 0; i < 10; i++)
-                if (flag[i] == 1)
-                   $<s.dval[i]>$ = $<s.dval[i]>6;
+            $<s.posi>$ = newNode(1, False, 1, 0, $<s.posi>6, NULL);
+            CGraph root = $<s.posi>$;
         }
     ;
 var_init
@@ -82,122 +101,133 @@ expr
             if (i < 0 || i > 9)
                 i = 0;
             $<s.val>$ = vars[i];
-            j = i;
-            for (i = 0; i < 10; i++)
-                if (flag[i] == 1)
-                    $<s.dval[i]>$ = 0;
-            $<s.dval[j]>$ = 1;
+            CGraphNode *leaf = newNode(0, True, 0, 0, NULL, NULL);
+            leaf->x = i;
+            $<s.posi>$ = leaf;
         }
     | NUMBER
         {
             $<s.val>$ = $<s.val>1;
-            for (i = 0; i < 10; i++)
-                if (flag[i] == 1)
-                    $<s.dval[i]>$ = 0;
         }
     | expr '+' expr
         {
             $<s.val>$ = $<s.val>1 + $<s.val>3;
-            for (i = 0; i < 10; i++)
-                if (flag[i] == 1)
-                    $<s.dval[i]>$ = $<s.dval[i]>1 + $<s.dval[i]>3;
+            $<s.posi>$ = newNode(0, False, 1, 1, $<s.posi>1, $<s.posi>3);
         }
     | expr '-' expr
         {
             $<s.val>$ = $<s.val>1 - $<s.val>3;
-            for (i = 0; i < 10; i++)
-                if (flag[i] == 1)
-                    $<s.dval[i]>$ = $<s.dval[i]>1 - $<s.dval[i]>3;
+            $<s.posi>$ = newNode(0, False, 1, -1, $<s.posi>1, $<s.posi>3);
         }
     | expr '*' expr
         {
             $<s.val>$ = $<s.val>1 * $<s.val>3;
-            for (i = 0; i < 10; i++)
-                if (flag[i] == 1)
-                    $<s.dval[i]>$ = $<s.dval[i]>1 * $<s.val>3 + $<s.val>1 * $<s.dval[i]>3;
+            double ledge,redge;
+            ledge = $<s.val>3;
+            redge = $<s.val>1;
+            $<s.posi>$ = newNode(0, False, ledge, redge, $<s.posi>1, $<s.posi>3);
         }
     | expr '/' expr
         {
             $<s.val>$ = $<s.val>1 / $<s.val>3;
-            for (i = 0; i < 10; i++)
-                if (flag[i] == 1)
-                {
-                    aux = $<s.dval[i]>1 * $<s.val>3 - $<s.val>1 * $<s.dval[i]>3;
-                    $<s.dval[i]>$ = aux / ($<s.val>3 * $<s.val>3);
-                }
+            double ledge,redge;
+            ledge = 1 / $<s.val>3;
+            redge = - $<s.val>1 / ($<s.val>3 * $<s.val>3);
+            $<s.posi>$ = newNode(0, False, ledge, redge, $<s.posi>1, $<s.posi>3);
         }
     | '-' expr
         {
             $<s.val>$ = - $<s.val>2;
-            for (i = 0; i < 10; i++)
-                if (flag[i] == 1)
-                    $<s.dval[i]>$ = - $<s.dval[i]>2;
+            $<s.posi>$ = newNode(0, False, -1, 0, $<s.posi>2, NULL);
         }
     | '(' expr ')'
         {
             $<s.val>$ = $<s.val>2;
-            for (i = 0; i < 10; i++)
-                if (flag[i] == 1)
-                    $<s.dval[i]>$ = $<s.dval[i]>2;
+            $<s.posi>$ = newNode(0, False, 1, 0, $<s.posi>2, NULL);
         }
     | expr '^' expr
         {
             $<s.val>$ = pow($<s.val>1, $<s.val>3);
-            for (i = 0; i < 10; i++)
-                if (flag[i] == 1)
-                {
-                    {
-                        if (fabs($<s.dval[i]>1) <= 1e-15 && fabs($<s.dval[i]>3) <= 1e-15)
-                            $<s.dval[i]>$ = 0;
-                        else if (fabs($<s.dval[i]>1) <= 1e-15)
-                            $<s.dval[i]>$ = $<s.val>$ * log($<s.val>1);
-                        else if (fabs($<s.dval[i]>3) <= 1e-15)
-                            $<s.dval[i]>$ = $<s.val>3 * pow($<s.val>1, $<s.val>3 - 1) * $<s.dval[i]>1;
-                        else
-                        {
-                            aux = $<s.dval[i]>3 * log($<s.val>1) + ($<s.val>3 / $<s.val>1) * $<s.dval[i]>1;
-                            $<s.dval[i]>$ = $<s.val>$ * aux;
-                        }
-                    }
-                }
+            double ledge,redge;
+            ledge = $<s.val>3 * pow($<s.val>1, $<s.val>3 - 1);
+            redge = log($<s.val>1) * pow($<s.val>1, $<s.val>3);
+            $<s.posi>$ = newNode(0, False, ledge, redge, $<s.posi>1, $<s.posi>3);
         }
     | EXP '(' expr ')'
         {
             $<s.val>$ = exp($<s.val>3);
-            for (i = 0; i < 10; i++)
-                if (flag[i] == 1)
-                    $<s.dval[i]>$ = $<s.dval[i]>3 * $<s.val>$;
+            double ledge = $<s.val>$;
+            $<s.posi>$ = newNode(0, False, ledge, 0, $<s.posi>3, NULL);
         }
     | LN '(' expr ')'
         {
             $<s.val>$ = log($<s.val>3);
-            for (i = 0; i < 10; i++)
-                if (flag[i] == 1)
-                    $<s.dval[i]>$ = $<s.dval[i]>3 / $<s.val>3;
+            double ledge = 1 / $<s.val>3;
+            $<s.posi>$ = newNode(0, False, ledge, 0, $<s.posi>3, NULL);
         }
     | SIN '(' expr ')'
         {
             $<s.val>$ = sin($<s.val>3);
-            for (i = 0; i < 10; i++)
-                if (flag[i] == 1)
-                    $<s.dval[i]>$ = $<s.dval[i]>3 * cos($<s.val>3);
+            double ledge = cos($<s.val>3);
+            $<s.posi>$ = newNode(0, False, ledge, 0, $<s.posi>3, NULL);
         }
     | COS '(' expr ')'
         {
             $<s.val>$ = cos($<s.val>3);
-            for (i = 0; i < 10; i++)
-                if (flag[i] == 1)
-                    $<s.dval[i]>$ = - $<s.dval[i]>3 * sin($<s.val>3);
+            double ledge = - sin($<s.val>3);
+            $<s.posi>$ = newNode(0, False, ledge, 0, $<s.posi>3, NULL);
         }
     ;
 
 %%
+
+CGraphNode *newNode(double dval, int leaf, double ledge, double redge, CGraphNode *left, CGraphNode *right)
+{
+    CGraphNode *newNode = (CGraphNode *)malloc(sizeof(CGraphNode));
+    newNode->dval = dval;
+    newNode->leaf = leaf;
+    newNode->ledge = ledge;
+    newNode->redge = redge;
+    newNode->left = left;
+    newNode->right = right;
+    return newNode;
+}
+
+void grad(CGraphNode *p)
+{
+    CGraphNode *left, *right;
+    left = p->left;
+    right = p->right;
+    if (left)
+    {
+        left->dval = p->dval * p->ledge;
+        grad(left);
+    }
+    if (right)
+    {
+        right->dval = p->dval * p->redge;
+        grad(right);
+    }
+    if (p->leaf)
+        dvars[p->x] += p->dval;
+}
+
+void calculate(CGraph root)
+{
+    int i;
+    CGraphNode *p;
+    for (i = 0; i < 10; i++)
+        if (flag[i] == 1)
+            dvars[i] = 0;
+    grad(root);
+}
 
 int yyerror(char *s)
 {
     printf("%s\n", s);
     return 1;
 }
+
 int main()
 {
     yyparse();
