@@ -4,13 +4,15 @@
 #include <ctype.h>
 #include <math.h>
 
+#define True 1
+#define False 0
+
 int yylex();
 int yyerror(char *);
 
 double vars[10] = {0.0}; //记录出现了的x0到x9的初始值
 double dvars[10] = {0.0}; //记录出现了的x0到x9的微分值
-#define True 1
-#define False 0
+
 typedef struct CGraphNode{
     double dval;
     int leaf;

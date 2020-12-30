@@ -21,3 +21,9 @@ cat input3.txt
 printf "\n"
 ./autodiff < input3.txt
 printf "\n"
+
+printf "样例4："
+cat input4.txt
+printf "\n"
+./autodiff < input4.txt
+printf "\n"

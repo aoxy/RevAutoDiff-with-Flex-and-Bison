@@ -71,5 +71,23 @@ int main()
     f-PDF@x4 = 1419.77
     f-PDF@x5 = 0.127074
     */
+    x1 = 2;
+    x2 = 5;
+    f = pow(x1, 2) + x1 * x2;
+    f1 = 2 * x1 + x2;
+    f2 = x1;
+    printf("样例4：f(x1=2,x2=5):x1^2+x1*x2\n");
+    printf("手动计算结果：\n");
+    printf("val = %.6g\n", f);
+    printf("f-PDF@x1 = %.6g\n", f1);
+    printf("f-PDF@x2 = %.6g\n", f2);
+    printf("\n");
+    /*
+    样例4：f(x1=2,x2=5):x1^2+x1*x2
+    手动计算结果：
+    val = 14
+    f-PDF@x1 = 9
+    f-PDF@x2 = 2
+    */
     return 0;
 }
