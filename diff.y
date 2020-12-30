@@ -7,8 +7,8 @@
 int yylex();
 int yyerror(char *);
 
-double vars[10] = {0.0}; //记录出现了x0到x9的初始值
-double dvars[10] = {0.0}; //记录出现了x0到x9的初始值
+double vars[10] = {0.0}; //记录出现了的x0到x9的初始值
+double dvars[10] = {0.0}; //记录出现了的x0到x9的微分值
 #define True 1
 #define False 0
 typedef struct CGraphNode{
@@ -20,14 +20,9 @@ typedef struct CGraphNode{
     struct CGraphNode*right;
     int x;
 }CGraphNode,*CGraph;
+CGraphNode *newNode(double dval, int leaf, double ledge, double redge, CGraphNode *left, CGraphNode *right);
 void calculate(CGraph root);
 void grad(CGraphNode *p);
-CGraphNode *newNode(double dval,
-                    int leaf,
-                    double ledge,
-                    double redge,
-                    CGraphNode *left,
-                    CGraphNode *right);
 int i, j;
 double aux;
 int flag[10] = {0}; //记录出现了x0到x9中的哪些变量
